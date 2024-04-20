@@ -1,6 +1,5 @@
 ﻿using Endgame.Game.Characters;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Threading.Tasks;
 
 namespace Endgame.Game;
@@ -8,10 +7,10 @@ namespace Endgame.Game;
 public class Game
 {
     public readonly BlazorConsole Console = new();
-    public TrueProgrammer Player { get; set; } = new();
+    public TrueProgrammer Player { get; set; }
     private ConsoleHelper ConsoleHelper { get; set; }
-    private Party HeroesParty { get; set; } = Party.HeroesParty;
-    private Party MonstersParty { get; set; } = Party.MonstersParty;
+    private Party HeroesParty { get; set; } = new Party(PartyType.Heroes);
+    private Party MonstersParty { get; set; } = new Party(PartyType.Monsters);
 	private List<Battle> Battles { get; set; } = [];
 
     public Game()
@@ -22,12 +21,21 @@ public class Game
 
     public async Task Run()
     {
+        string playerName = await AskForPlayerName();
+        Player = new(playerName);
+
         while (true)
         {
-            await AskForPlayerName();
-            HeroesParty.Characters.Add(Player);
+            Battle battle = new();
+			Player.Battle = battle;
 
-            Battles.Add(new Battle(HeroesParty, MonstersParty));
+            HeroesParty.Characters.Add(Player);
+            MonstersParty.Characters.Add(new Skeleton(battle));
+
+            battle.HeroesParty = HeroesParty;
+            battle.MonstersParty = MonstersParty;
+			Battles.Add(battle);
+
             foreach(Battle b in Battles)
             {
                 await b.Run();
@@ -35,13 +43,9 @@ public class Game
         }
     }
 
-    private async Task AskForPlayerName()
+    private async Task<string> AskForPlayerName()
     {
         await Console.Write("Enter your character name: ");
-		string name = await Console.ReadLine();
-        if (name != null)
-        {
-            Player.Name = name;
-        }
+		return await Console.ReadLine();
 	}
 }

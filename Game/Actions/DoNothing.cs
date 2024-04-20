@@ -5,7 +5,7 @@ namespace Endgame.Game.Actions;
 
 public class DoNothing : IAction
 {
-	public async Task Run(ICharacter character)
+	public async Task Run(ICharacter character, Battle? battle)
 	{
 		await Statics.Console.WriteLine($"{character.Name} did NOTHING.");
 	}
