@@ -1,4 +1,6 @@
-﻿using Endgame.Game.Characters;
+﻿using Endgame.Game.Actions;
+using Endgame.Game.Characters;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -20,19 +22,35 @@ public class Battle
 	{
 		while (!BattleOver)
 		{
-			await PlayTurn(HeroesParty.Characters);
-			await PlayTurn(MonstersParty.Characters);
+			await PlayTurn(HeroesParty);
+			await PlayTurn(MonstersParty);
 		}
 	}
 
-	private static async Task PlayTurn(List<ICharacter> characters)
+	private static async Task PlayTurn(Party party)
 	{
 		await Statics.Console.WriteLine();
-		foreach (ICharacter c in characters)
+		foreach (ICharacter c in party.Characters)
 		{
 			await Statics.Console.WriteLine($"It's {c.Name} turn...");
-			await c.Act();
-			await Task.Delay(1000);
+
+			IAction action;
+			if (party.PlayerInControl == PlayerType.Human)
+			{
+				action = await PromptForAction();
+			}
+			else
+			{
+				action = new DoNothing();
+			}
+
+			await c.Act(action);
 		}
+	}
+
+	private static async Task<IAction> PromptForAction()
+	{
+		await Statics.Console.WriteLine("Choose action: ");
+		return new DoNothing();
 	}
 }

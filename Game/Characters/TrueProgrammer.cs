@@ -1,14 +1,16 @@
-﻿using System.Threading.Tasks;
+﻿using Endgame.Game.Actions;
+using System.Threading.Tasks;
 
 namespace Endgame.Game.Characters;
 
 public class TrueProgrammer : ICharacter
 {
-	public CharacterType Type => CharacterType.TrueProgrammer;
 	public string Name { get; set; } = "TOG";
+	public CharacterType Type => CharacterType.TrueProgrammer;
 
-	public async Task Act()
+	public async Task Act(IAction action)
 	{
-		await Statics.Console.WriteLine($"{Name} did NOTHING.");
+		await Task.Delay(1000);
+		await action.Run(this);
 	}
 }

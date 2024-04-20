@@ -6,6 +6,7 @@ public class Party
 {
 	public PartyType Type { get; set; }
 	public List<ICharacter> Characters { get; set; } = [];
+	public PlayerType PlayerInControl { get; set; } = PlayerType.Computer;
 
 	public Party(PartyType type)
 	{
@@ -20,3 +21,4 @@ public class Party
 }
 
 public enum PartyType { Heroes, Monsters };
+public enum PlayerType { Computer, Human };
