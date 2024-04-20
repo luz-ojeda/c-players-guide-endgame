@@ -4,6 +4,7 @@ namespace Endgame.Game.Characters;
 
 public class Skeleton : ICharacter
 {
+	public string Name { get; set; } = "Skeleton";
 	public CharacterType Type => CharacterType.Skeleton;
 
 	public async Task Act()

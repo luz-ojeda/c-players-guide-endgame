@@ -32,13 +32,13 @@ public class BlazorConsole
 	public static BlazorConsole? ActiveConsole;
 #pragma warning restore CA2211 // Non-constant fields should not be visible
 
-	public const int Delay = 1; // milliseconds
-	public const int InactiveDelay = 1000; // milliseconds
-	public readonly Queue<ConsoleKeyInfo> InputBuffer = new();
+	private const int Delay = 1; // milliseconds
+	private const int InactiveDelay = 1000; // milliseconds
+	private readonly Queue<ConsoleKeyInfo> InputBuffer = new();
+	private readonly bool RefreshOnInputOnly = false;
+	private Pixel[,] View;
+	private bool StateHasChanged = true;
 	public Action? TriggerRefresh;
-	public bool RefreshOnInputOnly = false;
-	public Pixel[,] View;
-	public bool StateHasChanged = true;
 
 	public string? Title;
 	public ConsoleColor BackgroundColor = ConsoleColor.Black;
@@ -127,13 +127,13 @@ public class BlazorConsole
 #pragma warning restore IDE0060 // Remove unused parameter
 #pragma warning restore CA1822 // Mark members as static
 
-	public void SetWindowSize(int width, int height)
+	private void SetWindowSize(int width, int height)
 	{
 		WindowWidth = width;
 		WindowHeight = height;
 	}
 
-	public void SetBufferSize(int width, int height) => SetWindowSize(width, height);
+	private void SetBufferSize(int width, int height) => SetWindowSize(width, height);
 
 	public void EnqueueInput(ConsoleKey key, bool shift = false, bool alt = false, bool control = false)
 	{
@@ -182,7 +182,7 @@ public class BlazorConsole
 		}
 	}
 
-	public static string HtmlEncode(ConsoleColor color)
+	private static string HtmlEncode(ConsoleColor color)
 	{
 		return color switch
 		{
