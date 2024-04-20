@@ -5,9 +5,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using Towel;
 
-namespace Website;
+namespace Endgame;
 
 public class BlazorConsole
 {
@@ -37,7 +36,7 @@ public class BlazorConsole
 	public const int InactiveDelay = 1000; // milliseconds
 	public readonly Queue<ConsoleKeyInfo> InputBuffer = new();
 	public Action? TriggerRefresh;
-	public bool RefreshOnInputOnly = true;
+	public bool RefreshOnInputOnly = false;
 	public Pixel[,] View;
 	public bool StateHasChanged = true;
 
@@ -544,7 +543,7 @@ public class BlazorConsole
 
 	public async Task PromptPressToContinue(string? prompt = null, ConsoleKey key = ConsoleKey.Enter)
 	{
-		if (!key.IsDefined())
+		if (!Enum.IsDefined(key))
 		{
 			throw new ArgumentOutOfRangeException(nameof(key), key, $"{nameof(key)} is not a defined value in the {nameof(ConsoleKey)} enum");
 		}
@@ -558,7 +557,7 @@ public class BlazorConsole
 
 	public async Task PressToContinue(ConsoleKey key = ConsoleKey.Enter)
 	{
-		if (!key.IsDefined())
+		if (!Enum.IsDefined(key))
 		{
 			throw new ArgumentOutOfRangeException(nameof(key), key, $"{nameof(key)} is not a defined value in the {nameof(ConsoleKey)} enum");
 		}

@@ -1,4 +1,4 @@
-//T:System.Console;Use Website.BlazorConsole instead of System.Console
+//T:System.Console;Use Endgame.BlazorConsole instead of System.Console
 M:System.Console.get_BufferHeight;do not use
 M:System.Console.set_BufferHeight(System.Int32);do not use
 M:System.Console.SetBufferSize(System.Int32,System.Int32);do not use

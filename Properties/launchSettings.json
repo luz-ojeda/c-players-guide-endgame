@@ -8,7 +8,7 @@
 		}
 	},
 	"profiles": {
-		"Website": {
+		"Endgame": {
 			"commandName": "Project",
 			"dotnetRunMessages": true,
 			"launchBrowser": true,
