@@ -27,7 +27,7 @@ public class Battle
 
 			if (Monsters.Characters.Count == 0)
 			{
-				await Statics.ConsoleHelper.WriteLine($"The heroes have won the battle!", ConsoleColor.Green);
+				await ConsoleHelper.WriteLine($"The heroes have won the battle!", ConsoleColor.Green);
 				BattleOver = true;
 				HeroesWon = true;
 			}
@@ -63,8 +63,10 @@ public class Battle
 		{
 			if (Monsters.Characters.Count == 0 || Heroes.Characters.Count == 0) return;
 
+			await DisplayBattleStatus(character);
 			await Statics.Console.WriteLine();
 			await Statics.Console.WriteLine($"It's {character.Name} turn...");
+			await Statics.Console.WriteLine();
 
 			IAction action;
 			if (party.PlayerInControl == PlayerType.Human)
@@ -87,6 +89,31 @@ public class Battle
 
 			await action.Run(character, this);
 		}
+	}
+
+	private async Task DisplayBattleStatus(ICharacter currentCharacter)
+	{
+		const int characterCount = 97;
+
+		await Statics.Console.WriteLine();
+		await Statics.Console.WriteLine("============================================= BATTLE ============================================");
+
+		foreach(ICharacter c in Heroes.Characters)
+		{
+			ConsoleColor color = currentCharacter == c ? ConsoleColor.Yellow : ConsoleColor.White;
+			await ConsoleHelper.WriteLine($"{c.Name} ({c.HP} / {c.MaxHP})", color);
+		}
+
+		await Statics.Console.WriteLine("----------------------------------------------- VS ----------------------------------------------");
+
+		foreach (ICharacter c in Monsters.Characters)
+		{
+			ConsoleColor color = currentCharacter == c ? ConsoleColor.Yellow : ConsoleColor.White;
+			string characterInfo = $"({c.HP} / {c.MaxHP}) {c.Name}";
+			await ConsoleHelper.WriteLine($"{characterInfo,characterCount}", color);
+		}
+
+		await Statics.Console.WriteLine("=================================================================================================");
 	}
 
 	private async Task<IAction> PromptForAction(ICharacter c)

@@ -1,30 +1,30 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Endgame;
 
 namespace Endgame.Game;
 
-public class ConsoleHelper
+public static class ConsoleHelper
 {
-	public BlazorConsole Console { get; set; }
-
-	public ConsoleHelper(BlazorConsole console)
+	// Changes to the specified color and then displays the text on its own line.
+	public static async Task WriteLine(string text, ConsoleColor color)
 	{
-		Console = console;
+		Statics.Console.ForegroundColor = color;
+		await Statics.Console.WriteLine(text);
+		Statics.Console.ResetColor();
 	}
 
-	// Changes to the specified color and then displays the text on its own line.
-	public async Task WriteLine(string text, ConsoleColor color)
+	public static async Task WriteLine(object o, ConsoleColor color)
 	{
-		Console.ForegroundColor = color;
-		await Console.WriteLine(text);
-		Console.ResetColor();
+		Statics.Console.ForegroundColor = color;
+		await Statics.Console.WriteLine(o);
+		Statics.Console.ResetColor();
 	}
 
 	// Changes to the specified color and then displays the text without moving to the next line.
-	public async Task Write(string text, ConsoleColor color)
+	public static async Task Write(string text, ConsoleColor color)
 	{
-		Console.ForegroundColor = color;
-		await Console.Write(text);
+		Statics.Console.ForegroundColor = color;
+		await Statics.Console.Write(text);
+		Statics.Console.ResetColor();
 	}
 }

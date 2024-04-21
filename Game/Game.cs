@@ -18,7 +18,6 @@ public class Game
 	public Game()
 	{
 		Statics.Console = Console;
-		Statics.ConsoleHelper = new(Console);
 	}
 
 	public async Task Run()
@@ -32,22 +31,29 @@ public class Game
 		{
 			foreach (var (index, b) in Battles.Select((b, index) => (index, b)))
 			{
-				await Console.WriteLine();
-				await Statics.ConsoleHelper.WriteLine("Starting battle " + index, ConsoleColor.Magenta);
+				await Statics.Console.WriteLine();
 
 				Player.Battle = b;
 				bool battleWon = await b.Run();
 
 				if (!battleWon)
 				{
-					await Statics.ConsoleHelper.WriteLine($"The heroes have lost! The Uncoded One's forces have prevailed...", ConsoleColor.Red);
+					await ConsoleHelper.WriteLine($"The heroes have lost! The Uncoded One's forces have prevailed...", ConsoleColor.Red);
 					GameOver = true;
 					break;
 				}
 
 				if (battleWon && index == Battles.Count - 1)
 				{
-					await Statics.ConsoleHelper.WriteLine($"The heroes have won all the battles!", ConsoleColor.Cyan);
+					await Statics.Console.WriteLine("...");
+					await Task.Delay(500);
+					await Statics.Console.WriteLine("...");
+					await Task.Delay(500);
+					await Statics.Console.WriteLine("...");
+					await Task.Delay(500);
+
+					await Statics.Console.WriteLine("The Uncoded One begins to disintegrate, binary streams flowing out of it until it bursts apart in a dazzling bluelight.");
+					await ConsoleHelper.WriteLine("You have done it... You have defeated the Uncoded One", ConsoleColor.Cyan);
 					GameOver = true;
 				}
 			}

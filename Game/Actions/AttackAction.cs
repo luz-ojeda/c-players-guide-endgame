@@ -33,6 +33,7 @@ public class AttackAction : ITargetedAction
 			Target.HP -= damage;
 		}
 
+		await Statics.Console.WriteLine();
 		await Statics.Console.WriteLine($"{character.Name} used {attack.Name} on {Target.Name}.");
 		await Statics.Console.WriteLine($"{attack.Name} dealt {damage} damage to {Target.Name}.");
 		await Statics.Console.WriteLine($"{Target.Name} is now at {Target.HP}/{Target.MaxHP}.");

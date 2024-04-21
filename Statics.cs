@@ -5,5 +5,4 @@ public static class Statics
 {
 
 	public static BlazorConsole Console = null!;
-	public static ConsoleHelper ConsoleHelper = null!;
 }

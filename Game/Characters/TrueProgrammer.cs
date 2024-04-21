@@ -19,6 +19,10 @@ public class TrueProgrammer : ICharacter
 	public async Task SetupName()
 	{
 		await Statics.Console.Write("Enter your character name: ");
-		Name = await Statics.Console.ReadLine();
+		string name = await Statics.Console.ReadLine();
+		if (!string.IsNullOrWhiteSpace(name))
+		{
+			Name = name.Trim();
+		}
 	}
 }
