@@ -12,6 +12,11 @@ public class Battle
 	public bool BattleOver { get; set; } = false;
 	public bool HeroesWon { get; set; } = false;
 
+	public Battle(Party heroes, Party monsters)
+	{
+		Heroes = heroes;
+		Monsters = monsters;
+	}
 	public async Task<bool> Run()
 	{
 		while (!BattleOver)
@@ -20,7 +25,7 @@ public class Battle
 
 			if (Monsters.Characters.Count == 0)
 			{
-				await Statics.ConsoleHelper.WriteLine($"The heroes have won! The Uncoded One has been defeated.", ConsoleColor.Green);
+				await Statics.ConsoleHelper.WriteLine($"The heroes have won the battle!", ConsoleColor.Green);
 				BattleOver = true;
 				HeroesWon = true;
 			}
@@ -30,7 +35,6 @@ public class Battle
 
 				if (Heroes.Characters.Count == 0)
 				{
-					await Statics.ConsoleHelper.WriteLine($"The heroes have lost! The Uncoded One's forces have prevailed...", ConsoleColor.Red);
 					BattleOver = true;
 				}
 			}
@@ -41,10 +45,11 @@ public class Battle
 
 	private async Task PlayTurn(Party party)
 	{
-		await Statics.Console.WriteLine();
-
 		foreach (ICharacter character in party.Characters)
 		{
+			if (Monsters.Characters.Count == 0 || Heroes.Characters.Count == 0) return;
+
+			await Statics.Console.WriteLine();
 			await Statics.Console.WriteLine($"It's {character.Name} turn...");
 
 			IAction action;

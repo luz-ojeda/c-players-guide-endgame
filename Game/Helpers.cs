@@ -18,6 +18,7 @@ public class ConsoleHelper
 	{
 		Console.ForegroundColor = color;
 		await Console.WriteLine(text);
+		Console.ResetColor();
 	}
 
 	// Changes to the specified color and then displays the text without moving to the next line.

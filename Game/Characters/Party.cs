@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Endgame.Game.Characters;
 
@@ -12,17 +11,6 @@ public class Party
 	public Party(PartyType type)
 	{
 		Type = type;
-	}
-	public async Task EvaluatePartyState()
-	{
-		foreach (var c in Characters)
-		{
-			if (c.HP == 0)
-			{
-				Characters.Remove(c);
-				await Statics.Console.WriteLine($"{c.Name} has been defeated!");
-			}
-		}
 	}
 }
 
