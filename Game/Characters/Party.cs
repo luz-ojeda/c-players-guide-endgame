@@ -6,11 +6,12 @@ public class Party
 {
 	public PartyType Type { get; set; }
 	public List<ICharacter> Characters { get; set; } = [];
-	public PlayerType PlayerInControl { get; set; } = PlayerType.Human;
+	public PlayerType PlayerInControl { get; set; }
 
-	public Party(PartyType type)
+	public Party(PartyType type, PlayerType playerInControl = PlayerType.Computer)
 	{
 		Type = type;
+		PlayerInControl = playerInControl;
 	}
 }
 

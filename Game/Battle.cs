@@ -1,6 +1,8 @@
 ﻿using Endgame.Game.Actions;
 using Endgame.Game.Characters;
+using Endgame.Game.Menu;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Endgame.Game;
@@ -43,6 +45,18 @@ public class Battle
 		return HeroesWon;
 	}
 
+	public void RemoveCharacterFromParty(ICharacter character)
+	{
+		if (character.PartyType == PartyType.Monsters)
+		{
+			Monsters.Characters.Remove(character);
+		}
+		else
+		{
+			Heroes.Characters.Remove(character);
+		}
+	}
+
 	private async Task PlayTurn(Party party)
 	{
 		foreach (ICharacter character in party.Characters)
@@ -59,7 +73,16 @@ public class Battle
 			}
 			else
 			{
-				action = new DoNothingAction();
+				List<IAction> actions = [
+					new DoNothingAction(),
+					new AttackAction(GetEnemyPartyFor(character).Characters[0])];
+
+				action = actions[new Random().Next(0, 2)];
+			}
+
+			if (action is ITargetedAction targetedAction)
+			{
+				await targetedAction.SetTarget(character, GetEnemyPartyFor(character), GetPartyFor(character));
 			}
 
 			await action.Run(character, this);
@@ -68,28 +91,21 @@ public class Battle
 
 	private async Task<IAction> PromptForAction(ICharacter c)
 	{
-		await Statics.Console.WriteLine("Choose action: ");
-		await Task.Delay(500);
-		//string pick = await Statics.Console.ReadLine();
-		string pick = "attack";
+		List<IAction> actions = [new DoNothingAction(), new AttackAction()];
 
-		return pick.ToLower() switch
+		List<IMenuItem> menuItems = [];
+		foreach (IAction action in actions)
 		{
-			"attack" => await PromptForTarget(c),
-			"do nothing" or _ => new DoNothingAction(),
-		};
-	}
-
-	private async Task<IAction> PromptForTarget(ICharacter c)
-	{
-		await Statics.Console.WriteLine("The possible targets are:");
-		foreach (ICharacter enemyCharacter in GetEnemyPartyFor(c).Characters)
-		{
-			await Statics.Console.WriteLine(enemyCharacter.Name);
+			menuItems.Add(action switch
+			{
+				DoNothingAction => new ActionMenuItem("Do Nothing", true, action),
+				AttackAction or _ => new ActionMenuItem("Standard Attack", true, action),
+			});
 		}
 
-		ICharacter target = GetEnemyPartyFor(c).Characters[0];
-		return new AttackAction(target);
+		await Menu.Menu.DisplayMenuItems("Choose action: ", menuItems);
+		await Statics.Console.Write("What do you want to do? ");
+		return actions[await Menu.Menu.GetUserOption(menuItems.Count)];
 	}
 
 	private Party GetPartyFor(ICharacter c) => c.PartyType == PartyType.Heroes ? Heroes : Monsters;

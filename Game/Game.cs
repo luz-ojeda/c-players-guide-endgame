@@ -1,76 +1,97 @@
 ﻿using Endgame.Game.Characters;
+using Endgame.Game.Menu;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 namespace Endgame.Game;
 
 public class Game
 {
-    public readonly BlazorConsole Console = new();
-    public TrueProgrammer Player { get; set; }
-    private Party Heroes { get; set; } = new Party(PartyType.Heroes);
-    private List<Battle> Battles { get; set; } = [];
-    private bool GameOver { get; set; }
+	public readonly BlazorConsole Console = new();
+	public TrueProgrammer Player { get; set; } = new();
+	public GameplayMode Mode { get; set; }
+	private Party Heroes { get; set; }
+	private List<Battle> Battles { get; set; } = [];
+	private bool GameOver { get; set; }
 
-    public Game()
-    {
-        Statics.Console = Console;
-        Statics.ConsoleHelper = new(Console);
-    }
+	public Game()
+	{
+		Statics.Console = Console;
+		Statics.ConsoleHelper = new(Console);
+	}
 
-    public async Task Run()
-    {
-        string playerName = await AskForPlayerName();
-        Player = new(playerName);
+	public async Task Run()
+	{
+		await PromptForGameplayMode();
+		if (Mode != GameplayMode.ComputerVsComputer) await Player.SetupName();
 
-        InitializeBattles();
+		InitializeBattles();
 
-        while (!GameOver)
-        {
-            foreach (var (index, b) in Battles.Select((b, index) => (index, b)))
-            {
-                await Console.WriteLine();
+		while (!GameOver)
+		{
+			foreach (var (index, b) in Battles.Select((b, index) => (index, b)))
+			{
+				await Console.WriteLine();
 				await Statics.ConsoleHelper.WriteLine("Starting battle " + index, ConsoleColor.Magenta);
-				Player.Battle = b;
-                var battleWon = await b.Run();
 
-                if (!battleWon)
-                {
-                    await Statics.ConsoleHelper.WriteLine($"The heroes have lost! The Uncoded One's forces have prevailed...", ConsoleColor.Red);
-                    GameOver = true;
-                    break;
-                }
+				Player.Battle = b;
+				bool battleWon = await b.Run();
+
+				if (!battleWon)
+				{
+					await Statics.ConsoleHelper.WriteLine($"The heroes have lost! The Uncoded One's forces have prevailed...", ConsoleColor.Red);
+					GameOver = true;
+					break;
+				}
 
 				if (battleWon && index == Battles.Count - 1)
-                {
-                    await Statics.ConsoleHelper.WriteLine($"The heroes have won all the battles!", ConsoleColor.Cyan);
+				{
+					await Statics.ConsoleHelper.WriteLine($"The heroes have won all the battles!", ConsoleColor.Cyan);
 					GameOver = true;
 				}
 			}
-        }
-    }
+		}
+	}
 
-    private async Task<string> AskForPlayerName()
-    {
-        await Console.Write("Enter your character name: ");
-        return await Console.ReadLine();
-    }
+	private async Task PromptForGameplayMode()
+	{
+		List<IMenuItem> menuItems = [];
+		foreach (GameplayMode mode in Enum.GetValues(typeof(GameplayMode)))
+		{
+			menuItems.Add(mode switch
+			{
+				GameplayMode.PlayerVsComputer => new MenuItem("Player vs Computer"),
+				GameplayMode.ComputerVsComputer => new MenuItem("Computer vs Computer"),
+				GameplayMode.HumanVsHuman => new MenuItem("Human vs Human"),
+			});
+		}
+		await Menu.Menu.DisplayMenuItems("Choose the gameplay mode: ", menuItems);
+		int userOption = await Menu.Menu.GetUserOption(menuItems.Count);
+		Mode = (GameplayMode)userOption;
 
-    private void InitializeBattles()
-    {
-        Heroes.Characters.Add(Player);
+		await Statics.Console.Clear();
+	}
 
-        Battle battle1 = new(Heroes, new Party(PartyType.Monsters));
-        battle1.Monsters.Characters.AddRange([new Skeleton(battle1)]);
+	private void InitializeBattles()
+	{
+		PlayerType heroesPlayer = Mode != GameplayMode.ComputerVsComputer ? PlayerType.Human : PlayerType.Computer;
+		PlayerType monstersPlayer = Mode == GameplayMode.HumanVsHuman? PlayerType.Human : PlayerType.Computer;
 
-        Battle battle2 = new(Heroes, new Party(PartyType.Monsters));
-        battle2.Monsters.Characters.AddRange([new Skeleton(battle2), new Skeleton(battle2)]);
+		Heroes = new Party(PartyType.Heroes, heroesPlayer);
+		Heroes.Characters.Add(Player);
 
-		Battle battle3 = new(Heroes, new Party(PartyType.Monsters));
+		Battle battle1 = new(Heroes, new Party(PartyType.Monsters, monstersPlayer));
+		battle1.Monsters.Characters.AddRange([new Skeleton(battle1)]);
+
+		Battle battle2 = new(Heroes, new Party(PartyType.Monsters, monstersPlayer));
+		battle2.Monsters.Characters.AddRange([new Skeleton(battle2), new Skeleton(battle2)]);
+
+		Battle battle3 = new(Heroes, new Party(PartyType.Monsters, monstersPlayer));
 		battle3.Monsters.Characters.AddRange([new TheUncodedOne(battle3)]);
 
 		Battles.AddRange([battle1, battle2, battle3]);
-    }
+	}
 }
+
+public enum GameplayMode { PlayerVsComputer, ComputerVsComputer, HumanVsHuman };

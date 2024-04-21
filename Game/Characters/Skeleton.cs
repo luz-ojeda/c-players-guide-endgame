@@ -18,11 +18,5 @@ public class Skeleton : ICharacter
 		HP = MaxHP;
 		Battle = battle;
 	}
-
-	public async Task Act(IAction action)
-	{
-		await Task.Delay(1000);
-		await action.Run(this, Battle);
-	}
 }
 

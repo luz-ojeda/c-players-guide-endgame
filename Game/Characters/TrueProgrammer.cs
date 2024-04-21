@@ -1,5 +1,4 @@
-﻿using Endgame.Game.Actions;
-using Endgame.Game.Attacks;
+﻿using Endgame.Game.Attacks;
 using System.Threading.Tasks;
 
 namespace Endgame.Game.Characters;
@@ -13,15 +12,13 @@ public class TrueProgrammer : ICharacter
 	public float HP { get; set; }
 	public IAttack Attack => new PunchAttack();
 
-	public TrueProgrammer(string name)
+	public TrueProgrammer()
 	{
 		HP = MaxHP;
-		Name = name;
 	}
-
-	public async Task Act(IAction action)
+	public async Task SetupName()
 	{
-		await Task.Delay(1000);
-		await action.Run(this, Battle);
+		await Statics.Console.Write("Enter your character name: ");
+		Name = await Statics.Console.ReadLine();
 	}
 }

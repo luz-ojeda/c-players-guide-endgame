@@ -1,52 +1,66 @@
 ﻿using Endgame.Game.Attacks;
 using Endgame.Game.Characters;
-using System;
+using Endgame.Game.Menu;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Endgame.Game.Actions;
 
-public class AttackAction : IAction
+public class AttackAction : ITargetedAction
 {
-	private readonly ICharacter _target;
+	public ICharacter? Target { get; set; }
 
-	public AttackAction(ICharacter target)
+	public AttackAction(ICharacter? target)
 	{
-		_target = target;
+		Target = target;
 	}
+
+	public AttackAction() { }
 
 	public async Task Run(ICharacter character, Battle battle)
 	{
+		if (Target == null) return;
+
 		IAttack attack = character.Attack;
 		float damage = attack.Damage;
-		if (_target.HP - damage <= 0)
+		if (Target.HP - damage <= 0)
 		{
-			_target.HP = 0;
+			Target.HP = 0;
 		}
 		else
 		{
-			_target.HP -= damage;
+			Target.HP -= damage;
 		}
 
-		await Statics.Console.WriteLine($"{character.Name} used {attack.Name} on {_target.Name}.");
-		await Statics.Console.WriteLine($"{attack.Name} dealt {damage} damage to {_target.Name}.");
-		await Statics.Console.WriteLine($"{_target.Name} is now at {_target.HP}/{_target.MaxHP}.");
+		await Statics.Console.WriteLine($"{character.Name} used {attack.Name} on {Target.Name}.");
+		await Statics.Console.WriteLine($"{attack.Name} dealt {damage} damage to {Target.Name}.");
+		await Statics.Console.WriteLine($"{Target.Name} is now at {Target.HP}/{Target.MaxHP}.");
 
-		if (_target.HP == 0)
+		if (Target.HP == 0)
 		{
-			await Statics.Console.WriteLine($"{_target.Name} has been defeated!");
-			RemoveCharacterFromParty(_target, battle);
+			await Statics.Console.WriteLine($"{Target.Name} has been defeated!");
+			battle.RemoveCharacterFromParty(Target);
 		}
 	}
 
-	private void RemoveCharacterFromParty(ICharacter character, Battle battle)
+	public async Task SetTarget(ICharacter character, Party enemyParty, Party party)
 	{
-		if (character.PartyType == PartyType.Monsters)
+		if (enemyParty.Characters.Count > 1)
 		{
-			battle.Monsters.Characters.Remove(character);
+			List<IMenuItem> possibleTargets = [];
+			foreach (ICharacter enemyCharacter in enemyParty.Characters)
+			{
+				possibleTargets.Add(new MenuItem(enemyCharacter.Name));
+			}
+
+			await Menu.Menu.DisplayMenuItems("Choose the target: ", possibleTargets);
+			int targetIndex = await Menu.Menu.GetUserOption(possibleTargets.Count);
+
+			Target = enemyParty.Characters[targetIndex];
 		}
 		else
 		{
-			battle.Heroes.Characters.Remove(character);
+			Target = enemyParty.Characters[0];
 		}
 	}
 }
