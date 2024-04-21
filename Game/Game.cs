@@ -8,15 +8,15 @@ public class Game
 {
     public readonly BlazorConsole Console = new();
     public TrueProgrammer Player { get; set; }
-    private ConsoleHelper ConsoleHelper { get; set; }
     private Party Heroes { get; set; } = new Party(PartyType.Heroes);
     private Party Monsters { get; set; } = new Party(PartyType.Monsters);
 	private List<Battle> Battles { get; set; } = [];
+    private bool GameOver { get; set; }
 
     public Game()
     {
-        ConsoleHelper = new(Console);
         Statics.Console = Console;
+        Statics.ConsoleHelper = new(Console);
     }
 
     public async Task Run()
@@ -24,7 +24,7 @@ public class Game
         string playerName = await AskForPlayerName();
         Player = new(playerName);
 
-        while (true)
+        while (Player.HP > 0 && !GameOver)
         {
             Battle battle = new();
 			Player.Battle = battle;
@@ -38,7 +38,7 @@ public class Game
 
             foreach(Battle b in Battles)
             {
-                await b.Run();
+                GameOver = await b.Run();
             }
         }
     }

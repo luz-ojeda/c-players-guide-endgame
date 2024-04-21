@@ -1,5 +1,6 @@
 ﻿using Endgame.Game.Actions;
 using Endgame.Game.Characters;
+using System;
 using System.Threading.Tasks;
 
 namespace Endgame.Game;
@@ -9,20 +10,39 @@ public class Battle
 	public Party Monsters { get; set; }
 	public PartyType Turn { get; set; }
 	public bool BattleOver { get; set; } = false;
+	public bool HeroesWon { get; set; } = false;
 
-	public async Task Run()
+	public async Task<bool> Run()
 	{
 		while (!BattleOver)
 		{
 			await PlayTurn(Heroes);
-			await PlayTurn(Monsters);
+
+			if (Monsters.Characters.Count == 0)
+			{
+				await Statics.ConsoleHelper.WriteLine($"The heroes have won! The Uncoded One has been defeated.", ConsoleColor.Green);
+				BattleOver = true;
+				HeroesWon = true;
+			}
+			else
+			{
+				await PlayTurn(Monsters);
+
+				if (Heroes.Characters.Count == 0)
+				{
+					await Statics.ConsoleHelper.WriteLine($"The heroes have lost! The Uncoded One's forces have prevailed...", ConsoleColor.Red);
+					BattleOver = true;
+				}
+			}
+
 		}
+		return HeroesWon;
 	}
 
 	private async Task PlayTurn(Party party)
 	{
 		await Statics.Console.WriteLine();
-		
+
 		foreach (ICharacter character in party.Characters)
 		{
 			await Statics.Console.WriteLine($"It's {character.Name} turn...");
@@ -37,7 +57,7 @@ public class Battle
 				action = new DoNothingAction();
 			}
 
-			await character.Act(action);
+			await action.Run(character, this);
 		}
 	}
 
