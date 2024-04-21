@@ -4,16 +4,16 @@ using System.Threading.Tasks;
 
 namespace Endgame.Game.Characters;
 
-public class Skeleton : ICharacter
+public class TheUncodedOne : ICharacter
 {
 	public Battle Battle { get; set; }
-	public string Name { get; set; } = "Skeleton";
+	public string Name { get; set; } = "The Uncoded One";
 	public PartyType PartyType { get; } = PartyType.Monsters;
-	public float MaxHP { get; set; } = 5;
+	public float MaxHP { get; set; } = 15;
 	public float HP { get; set; }
-	public IAttack Attack => new BoneCrunchAttack();
+	public IAttack Attack => new PunchAttack();
 
-	public Skeleton(Battle battle)
+	public TheUncodedOne(Battle battle)
 	{
 		HP = MaxHP;
 		Battle = battle;
@@ -25,4 +25,3 @@ public class Skeleton : ICharacter
 		await action.Run(this, Battle);
 	}
 }
-

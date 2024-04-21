@@ -27,12 +27,12 @@ public class Game
 
         InitializeBattles();
 
-        while (Player.HP > 0 && !GameOver)
+        while (!GameOver)
         {
             foreach (var (index, b) in Battles.Select((b, index) => (index, b)))
             {
                 await Console.WriteLine();
-                await Console.WriteLine("Starting battle...");
+				await Statics.ConsoleHelper.WriteLine("Starting battle " + index, ConsoleColor.Magenta);
 				Player.Battle = b;
                 var battleWon = await b.Run();
 
@@ -43,11 +43,12 @@ public class Game
                     break;
                 }
 
-                if (battleWon && index == Battles.Count - 1)
+				if (battleWon && index == Battles.Count - 1)
                 {
-                    await Statics.ConsoleHelper.WriteLine($" The Uncoded One has been defeated!", ConsoleColor.Blue);
-                }
-            }
+                    await Statics.ConsoleHelper.WriteLine($"The heroes have won all the battles!", ConsoleColor.Cyan);
+					GameOver = true;
+				}
+			}
         }
     }
 
@@ -67,6 +68,9 @@ public class Game
         Battle battle2 = new(Heroes, new Party(PartyType.Monsters));
         battle2.Monsters.Characters.AddRange([new Skeleton(battle2), new Skeleton(battle2)]);
 
-        Battles.AddRange([battle1, battle2]);
+		Battle battle3 = new(Heroes, new Party(PartyType.Monsters));
+		battle3.Monsters.Characters.AddRange([new TheUncodedOne(battle3)]);
+
+		Battles.AddRange([battle1, battle2, battle3]);
     }
 }

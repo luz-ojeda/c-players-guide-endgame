@@ -7,7 +7,6 @@ namespace Endgame.Game.Characters;
 public interface ICharacter
 {
 	public string Name { get; set; }
-	public CharacterType Type { get; }
 	public Task Act(IAction action);
 	public PartyType PartyType { get; }
 	public float MaxHP {  get; set; }
