@@ -9,8 +9,8 @@ public class Game
     public readonly BlazorConsole Console = new();
     public TrueProgrammer Player { get; set; }
     private ConsoleHelper ConsoleHelper { get; set; }
-    private Party HeroesParty { get; set; } = new Party(PartyType.Heroes);
-    private Party MonstersParty { get; set; } = new Party(PartyType.Monsters);
+    private Party Heroes { get; set; } = new Party(PartyType.Heroes);
+    private Party Monsters { get; set; } = new Party(PartyType.Monsters);
 	private List<Battle> Battles { get; set; } = [];
 
     public Game()
@@ -29,11 +29,11 @@ public class Game
             Battle battle = new();
 			Player.Battle = battle;
 
-            HeroesParty.Characters.Add(Player);
-            MonstersParty.Characters.Add(new Skeleton(battle));
+            Heroes.Characters.Add(Player);
+            Monsters.Characters.Add(new Skeleton(battle));
 
-            battle.HeroesParty = HeroesParty;
-            battle.MonstersParty = MonstersParty;
+            battle.Heroes = Heroes;
+            battle.Monsters = Monsters;
 			Battles.Add(battle);
 
             foreach(Battle b in Battles)

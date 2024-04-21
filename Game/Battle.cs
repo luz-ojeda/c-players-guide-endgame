@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 namespace Endgame.Game;
 public class Battle
 {
-	public Party HeroesParty { get; set; }
-	public Party MonstersParty { get; set; }
+	public Party Heroes { get; set; }
+	public Party Monsters { get; set; }
 	public PartyType Turn { get; set; }
 	public bool BattleOver { get; set; } = false;
 
@@ -14,8 +14,8 @@ public class Battle
 	{
 		while (!BattleOver)
 		{
-			await PlayTurn(HeroesParty);
-			await PlayTurn(MonstersParty);
+			await PlayTurn(Heroes);
+			await PlayTurn(Monsters);
 		}
 	}
 
@@ -23,21 +23,21 @@ public class Battle
 	{
 		await Statics.Console.WriteLine();
 		
-		foreach (ICharacter c in party.Characters)
+		foreach (ICharacter character in party.Characters)
 		{
-			await Statics.Console.WriteLine($"It's {c.Name} turn...");
+			await Statics.Console.WriteLine($"It's {character.Name} turn...");
 
 			IAction action;
 			if (party.PlayerInControl == PlayerType.Human)
 			{
-				action = await PromptForAction(c);
+				action = await PromptForAction(character);
 			}
 			else
 			{
-				action = new DoNothing();
+				action = new DoNothingAction();
 			}
 
-			await c.Act(action);
+			await character.Act(action);
 		}
 	}
 
@@ -51,7 +51,7 @@ public class Battle
 		return pick.ToLower() switch
 		{
 			"attack" => await PromptForTarget(c),
-			"do nothing" or _ => new DoNothing(),
+			"do nothing" or _ => new DoNothingAction(),
 		};
 	}
 
@@ -63,19 +63,11 @@ public class Battle
 			await Statics.Console.WriteLine(enemyCharacter.Name);
 		}
 
-		ICharacter character = GetEnemyPartyFor(c).Characters[0];
-		return new Attack(character);
+		ICharacter target = GetEnemyPartyFor(c).Characters[0];
+		return new AttackAction(target);
 	}
 
-	private Party GetPartyFor(ICharacter c)
-	{
-		if (c.PartyType == PartyType.Heroes) return HeroesParty;
-		return MonstersParty;
-	}
+	private Party GetPartyFor(ICharacter c) => c.PartyType == PartyType.Heroes ? Heroes : Monsters;
 
-	private Party GetEnemyPartyFor(ICharacter c)
-	{
-		if (c.PartyType == PartyType.Monsters) return HeroesParty;
-		return MonstersParty;
-	}
+	private Party GetEnemyPartyFor(ICharacter c) => c.PartyType == PartyType.Monsters ? Heroes : Monsters;
 }

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Endgame.Game.Actions;
 
-public class DoNothing : IAction
+public class DoNothingAction : IAction
 {
 	public async Task Run(ICharacter character, Battle? battle)
 	{
