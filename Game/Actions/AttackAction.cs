@@ -1,6 +1,7 @@
 ﻿using Endgame.Game.Attacks;
 using Endgame.Game.Characters;
 using Endgame.Game.Menu;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -47,14 +48,22 @@ public class AttackAction : ITargetedAction
 	{
 		if (enemyParty.Characters.Count > 1)
 		{
-			List<IMenuItem> possibleTargets = [];
-			foreach (ICharacter enemyCharacter in enemyParty.Characters)
+			int targetIndex;
+			if (party.PlayerInControl == PlayerType.Human)
 			{
-				possibleTargets.Add(new MenuItem(enemyCharacter.Name));
-			}
+				List<IMenuItem> possibleTargets = [];
+				foreach (ICharacter enemyCharacter in enemyParty.Characters)
+				{
+					possibleTargets.Add(new MenuItem(enemyCharacter.Name));
+				}
 
-			await Menu.Menu.DisplayMenuItems("Choose the target: ", possibleTargets);
-			int targetIndex = await Menu.Menu.GetUserOption(possibleTargets.Count);
+				await Menu.Menu.DisplayMenuItems("Choose the target: ", possibleTargets);
+				targetIndex = await Menu.Menu.GetUserOption(possibleTargets.Count);
+			}
+			else
+			{
+				targetIndex = new Random().Next(0, enemyParty.Characters.Count);
+			}
 
 			Target = enemyParty.Characters[targetIndex];
 		}
