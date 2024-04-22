@@ -11,6 +11,7 @@ public interface ICharacter
 	public IAttack Attack { get; }
 	public string Symbol{ get; }
 	public bool CanUseItems { get; set; }
+	public string CurrentHP => $"({HP}/{MaxHP})";
 }
 
 public enum CharacterType { Skeleton, TrueProgrammer };

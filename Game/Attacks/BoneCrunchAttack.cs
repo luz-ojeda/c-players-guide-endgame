@@ -2,9 +2,10 @@
 
 namespace Endgame.Game.Attacks;
 
-public class BoneCrunchAttack : IAttack
+public record BoneCrunchAttack(
+	string Name = "BONE CRUNCH",
+	ConsoleColor? Color = ConsoleColor.DarkGray
+	) : IAttack
 {
-	public float Damage { get; } = new Random().Next(2);
-	public string Name { get; } = "BONE CRUNCH";
-	public ConsoleColor? Color { get; } = ConsoleColor.DarkGray;
+	public float Damage { get; } = new Random().Next(3);
 }

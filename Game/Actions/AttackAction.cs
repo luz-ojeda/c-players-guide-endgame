@@ -34,6 +34,7 @@ public class AttackAction : ITargetedAction
 			Target.HP -= damage;
 		}
 
+		await Statics.Console.WriteLine();
 		await Statics.Console.Write($"{character.Name} used ");
 		await ConsoleHelper.Write($"{attack.Name}", attack.Color ?? ConsoleColor.White);
 		await Statics.Console.WriteLine($" on {Target.Name}.");
