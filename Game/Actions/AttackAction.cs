@@ -20,6 +20,7 @@ public class AttackAction : ITargetedAction
 
 	public async Task Run(ICharacter character, Battle battle)
 	{
+		await SetTarget(character, battle.GetEnemyPartyFor(character), battle.GetPartyFor(character));
 		if (Target == null) return;
 
 		IAttack attack = character.Attack;
@@ -33,7 +34,6 @@ public class AttackAction : ITargetedAction
 			Target.HP -= damage;
 		}
 
-		await Statics.Console.WriteLine();
 		await Statics.Console.WriteLine($"{character.Name} used {attack.Name} on {Target.Name}.");
 		await Statics.Console.WriteLine($"{attack.Name} dealt {damage} damage to {Target.Name}.");
 		await Statics.Console.WriteLine($"{Target.Name} is now at {Target.HP}/{Target.MaxHP}.");
@@ -45,12 +45,17 @@ public class AttackAction : ITargetedAction
 		}
 	}
 
-	public async Task SetTarget(ICharacter character, Party enemyParty, Party party)
+	public async Task SetUp(ICharacter character, Party enemyParty, Party party)
+	{
+		await SetTarget(character, enemyParty, party);
+	}
+
+	private async Task SetTarget(ICharacter character, Party enemyParty, Party characterParty)
 	{
 		if (enemyParty.Characters.Count > 1)
 		{
 			int targetIndex;
-			if (party.PlayerInControl == PlayerType.Human)
+			if (characterParty.PlayerInControl == PlayerType.Human)
 			{
 				List<IMenuItem> possibleTargets = [];
 				foreach (ICharacter enemyCharacter in enemyParty.Characters)

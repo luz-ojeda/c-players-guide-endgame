@@ -9,7 +9,7 @@ public class Menu
 {
     public static async Task DisplayMenuItems(string prompt, List<IMenuItem> menuItems)
     {
-        await Statics.Console.WriteLine(prompt);
+		await Statics.Console.WriteLine(prompt);
         foreach (var (i, item) in menuItems.Select((item, i) => (i, item)))
         {
             await Statics.Console.WriteLine($"{i} - {item.Description}");

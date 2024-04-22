@@ -2,6 +2,6 @@
 
 public class PunchAttack : IAttack
 {
-	public float Damage { get; } = 1;
+	public float Damage { get; } = 4;
 	public string Name { get; } = "PUNCH";
 }

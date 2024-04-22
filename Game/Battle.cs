@@ -1,16 +1,20 @@
 ﻿using Endgame.Game.Actions;
 using Endgame.Game.Characters;
+using Endgame.Game.Items;
 using Endgame.Game.Menu;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Threading.Tasks;
+using static System.Collections.Specialized.BitVector32;
 
 namespace Endgame.Game;
 public class Battle
 {
 	public Party Heroes { get; set; }
 	public Party Monsters { get; set; }
-	public PartyType Turn { get; set; }
 	public bool BattleOver { get; set; } = false;
 	public bool HeroesWon { get; set; } = false;
 
@@ -56,6 +60,17 @@ public class Battle
 			Heroes.Characters.Remove(character);
 		}
 	}
+	public void RemoveItemFromPartyItems(ICharacter character, IItem item)
+	{
+		if (character.PartyType == PartyType.Monsters)
+		{
+			Monsters.Items.Remove(item);
+		}
+		else
+		{
+			Heroes.Items.Remove(item);
+		}
+	}
 
 	private async Task PlayTurn(Party party)
 	{
@@ -71,25 +86,20 @@ public class Battle
 			IAction action;
 			if (party.PlayerInControl == PlayerType.Human)
 			{
-				action = await PromptForAction(character);
+				action = await PlayHumanTurn(character, party);
 			}
 			else
 			{
-				List<IAction> actions = [
-					new DoNothingAction(),
-					new AttackAction(GetEnemyPartyFor(character).Characters[0])];
-
-				action = actions[new Random().Next(0, 2)];
-			}
-
-			if (action is ITargetedAction targetedAction)
-			{
-				await targetedAction.SetTarget(character, GetEnemyPartyFor(character), GetPartyFor(character));
+				action = PlayComputerTurn(character, party);
 			}
 
 			await action.Run(character, this);
 		}
 	}
+
+	public Party GetPartyFor(ICharacter c) => c.PartyType == PartyType.Heroes ? Heroes : Monsters;
+
+	public Party GetEnemyPartyFor(ICharacter c) => c.PartyType == PartyType.Monsters ? Heroes : Monsters;
 
 	private async Task DisplayBattleStatus(ICharacter currentCharacter)
 	{
@@ -98,10 +108,10 @@ public class Battle
 		await Statics.Console.WriteLine();
 		await Statics.Console.WriteLine("============================================= BATTLE ============================================");
 
-		foreach(ICharacter c in Heroes.Characters)
+		foreach (ICharacter c in Heroes.Characters)
 		{
 			ConsoleColor color = currentCharacter == c ? ConsoleColor.Yellow : ConsoleColor.White;
-			await ConsoleHelper.WriteLine($"{c.Name} ({c.HP} / {c.MaxHP})", color);
+			await ConsoleHelper.WriteLine($"{c.Symbol} {c.Name} ({c.HP} / {c.MaxHP})", color);
 		}
 
 		await Statics.Console.WriteLine("----------------------------------------------- VS ----------------------------------------------");
@@ -109,16 +119,16 @@ public class Battle
 		foreach (ICharacter c in Monsters.Characters)
 		{
 			ConsoleColor color = currentCharacter == c ? ConsoleColor.Yellow : ConsoleColor.White;
-			string characterInfo = $"({c.HP} / {c.MaxHP}) {c.Name}";
+			string characterInfo = $"({c.HP} / {c.MaxHP}) {c.Name} {c.Symbol}";
 			await ConsoleHelper.WriteLine($"{characterInfo,characterCount}", color);
 		}
 
 		await Statics.Console.WriteLine("=================================================================================================");
 	}
 
-	private async Task<IAction> PromptForAction(ICharacter c)
+	private async Task<IAction> PlayHumanTurn(ICharacter character, Party party)
 	{
-		List<IAction> actions = [new DoNothingAction(), new AttackAction()];
+		List<IAction> actions = GetPossibleActions(character, party);
 
 		List<IMenuItem> menuItems = [];
 		foreach (IAction action in actions)
@@ -126,7 +136,8 @@ public class Battle
 			menuItems.Add(action switch
 			{
 				DoNothingAction => new ActionMenuItem("Do Nothing", true, action),
-				AttackAction or _ => new ActionMenuItem("Standard Attack", true, action),
+				AttackAction => new ActionMenuItem("Standard Attack", true, action),
+				UseItemAction => new ActionMenuItem("Use Item", character.CanUseItems, action),
 			});
 		}
 
@@ -135,7 +146,29 @@ public class Battle
 		return actions[await Menu.Menu.GetUserOption(menuItems.Count)];
 	}
 
-	private Party GetPartyFor(ICharacter c) => c.PartyType == PartyType.Heroes ? Heroes : Monsters;
+	private IAction PlayComputerTurn(ICharacter character, Party party)
+	{
+		List<IAction> actions = GetPossibleActions(character, party);
 
-	private Party GetEnemyPartyFor(ICharacter c) => c.PartyType == PartyType.Monsters ? Heroes : Monsters;
+		return actions[new Random().Next(0, actions.Count)];
+	}
+
+	private List<IAction> GetPossibleActions(
+		ICharacter character,
+		Party party)
+	{
+		List<IAction> actions = [
+			new DoNothingAction(),
+			new AttackAction(GetEnemyPartyFor(character).Characters[0])];
+
+		if (party.Items.Count == 0) return actions;
+
+		if (party.PlayerInControl == PlayerType.Human ||
+			(character.HP < (character.MaxHP * 0.25) && party.PlayerInControl == PlayerType.Computer))
+		{
+			actions.Add(new UseItemAction(GetPartyFor(character).Characters[0]));
+		}
+
+		return actions;
+	}
 }

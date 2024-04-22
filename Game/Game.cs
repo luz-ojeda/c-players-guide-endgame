@@ -38,6 +38,7 @@ public class Game
 
 				if (!battleWon)
 				{
+					await Statics.Console.WriteLine();
 					await ConsoleHelper.WriteLine($"The heroes have lost! The Uncoded One's forces have prevailed...", ConsoleColor.Red);
 					GameOver = true;
 					break;
@@ -45,6 +46,7 @@ public class Game
 
 				if (battleWon && index == Battles.Count - 1)
 				{
+					await Statics.Console.WriteLine();
 					await Statics.Console.WriteLine("...");
 					await Task.Delay(500);
 					await Statics.Console.WriteLine("...");

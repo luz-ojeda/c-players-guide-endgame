@@ -1,6 +1,4 @@
-﻿using Endgame.Game.Actions;
-using Endgame.Game.Attacks;
-using System.Threading.Tasks;
+﻿using Endgame.Game.Attacks;
 
 namespace Endgame.Game.Characters;
 
@@ -12,6 +10,8 @@ public class Skeleton : ICharacter
 	public float MaxHP { get; set; } = 5;
 	public float HP { get; set; }
 	public IAttack Attack => new BoneCrunchAttack();
+	public string Symbol { get; } = "$";
+	public bool CanUseItems { get; set; } = true;
 
 	public Skeleton(Battle battle)
 	{

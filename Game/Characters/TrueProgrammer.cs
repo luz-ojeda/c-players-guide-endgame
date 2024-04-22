@@ -8,10 +8,11 @@ public class TrueProgrammer : ICharacter
 	public Battle Battle { get; set; }
 	public string Name { get; set; } = "TOG";
 	public PartyType PartyType { get; } = PartyType.Heroes;
-	public float MaxHP { get; set; } = 25;
+	public float MaxHP { get; } = 25;
 	public float HP { get; set; }
 	public IAttack Attack => new PunchAttack();
-
+	public string Symbol { get; } = "☺";
+	public bool CanUseItems { get; set; } = true;
 	public TrueProgrammer()
 	{
 		HP = MaxHP;
