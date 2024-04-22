@@ -31,6 +31,7 @@ public class Battle
 
 			if (Monsters.Characters.Count == 0)
 			{
+				await Statics.Console.WriteLine();
 				await ConsoleHelper.WriteLine($"The heroes have won the battle!", ConsoleColor.Green);
 				BattleOver = true;
 				HeroesWon = true;
@@ -111,7 +112,7 @@ public class Battle
 		foreach (ICharacter c in Heroes.Characters)
 		{
 			ConsoleColor color = currentCharacter == c ? ConsoleColor.Yellow : ConsoleColor.White;
-			await ConsoleHelper.WriteLine($"{c.Symbol} {c.Name} ({c.HP} / {c.MaxHP})", color);
+			await ConsoleHelper.WriteLine($"({c.HP} / {c.MaxHP}) {c.Name} {c.Symbol}", color);
 		}
 
 		await Statics.Console.WriteLine("----------------------------------------------- VS ----------------------------------------------");
@@ -119,7 +120,7 @@ public class Battle
 		foreach (ICharacter c in Monsters.Characters)
 		{
 			ConsoleColor color = currentCharacter == c ? ConsoleColor.Yellow : ConsoleColor.White;
-			string characterInfo = $"({c.HP} / {c.MaxHP}) {c.Name} {c.Symbol}";
+			string characterInfo = $"{c.Symbol} {c.Name} ({c.HP} / {c.MaxHP})";
 			await ConsoleHelper.WriteLine($"{characterInfo,characterCount}", color);
 		}
 

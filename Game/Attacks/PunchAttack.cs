@@ -1,7 +1,9 @@
-﻿namespace Endgame.Game.Attacks;
+﻿using System;
 
-public class PunchAttack : IAttack
-{
-	public float Damage { get; } = 4;
-	public string Name { get; } = "PUNCH";
-}
+namespace Endgame.Game.Attacks;
+
+public record PunchAttack(
+	float Damage = 5,
+	string Name = "PUNCH",
+	ConsoleColor? Color = ConsoleColor.Cyan
+	): IAttack;

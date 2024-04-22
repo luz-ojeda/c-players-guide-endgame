@@ -13,7 +13,8 @@ public class HealthPotion : Potion
 	{
 		if (context is ICharacter character)
 		{
-			await Statics.Console.WriteLine($"{character.Name} used a health potion");
+			await Statics.Console.Write($"{character.Name} used a ");
+			await ConsoleHelper.WriteLine($"health potion", ConsoleColor.Red);
 			if (character.HP + _healingAmount > character.MaxHP )
 			{
 				character.HP = character.MaxHP;
