@@ -4,5 +4,5 @@ namespace Endgame.Game.Actions;
 
 public interface ITargetedAction : IAction
 {
-	public ICharacter? Target { get; set; }
+	IPartyCharacter? Target { get; set; }
 }

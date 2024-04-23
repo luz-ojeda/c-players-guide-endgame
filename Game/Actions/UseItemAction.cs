@@ -1,6 +1,7 @@
 ﻿using Endgame.Game.Characters;
 using Endgame.Game.Items;
 using Endgame.Game.Menu;
+using Game.Enums;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -8,15 +9,15 @@ namespace Endgame.Game.Actions;
 
 public class UseItemAction : ITargetedAction
 {
-	public ICharacter? Target { get; set; }
-	public IItem Item { get; set; }
+	public IPartyCharacter? Target { get; set; }
+	public IPartyItem Item { get; set; }
 
-	public UseItemAction(ICharacter? target)
+	public UseItemAction(IPartyCharacter? target)
 	{
 		Target = target;
 	}
 
-	public async Task Run(ICharacter character, Battle battle)
+	public async Task Run(IPartyCharacter character, Battle battle)
 	{
 		Party party = battle.GetPartyFor(character);
 		if (party.PlayerInControl == PlayerType.Computer)
@@ -31,13 +32,13 @@ public class UseItemAction : ITargetedAction
 		await SetTarget(character, party);
 
 		await Item.Use(Target);
-		battle.RemoveItemFromPartyItems(character, Item);
+		Item.RemoveFromItems();
 	}
 
 	private async Task SetItem(ICharacter character, Party characterParty)
 	{
 		List<IMenuItem> possibleItems = [];
-		foreach (IItem i in characterParty.Items)
+		foreach (IPartyItem i in characterParty.Items)
 		{
 			possibleItems.Add(new MenuItem(i.Name));
 		}
@@ -46,7 +47,7 @@ public class UseItemAction : ITargetedAction
 		Item = characterParty.Items[itemIndex];
 	}
 
-	private async Task SetTarget(ICharacter character, Party characterParty)
+	private async Task SetTarget(IPartyCharacter character, Party characterParty)
 	{
 		if (characterParty.Characters.Count > 1 && characterParty.PlayerInControl == PlayerType.Human)
 		{

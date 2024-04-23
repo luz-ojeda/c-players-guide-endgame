@@ -5,6 +5,6 @@ namespace Endgame.Game.Actions;
 
 public interface IAction
 {
-	Task Run(ICharacter character, Battle battle);
+	Task Run(IPartyCharacter character, Battle battle);
 }
 

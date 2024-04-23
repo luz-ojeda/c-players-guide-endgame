@@ -5,5 +5,5 @@ namespace Endgame.Game.Attacks;
 public record PunchAttack(
 	float Damage = 1,
 	string Name = "PUNCH",
-	ConsoleColor? Color = ConsoleColor.Cyan
+	ConsoleColor? Color = ConsoleColor.DarkYellow
 	): IAttack;

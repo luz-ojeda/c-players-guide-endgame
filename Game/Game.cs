@@ -1,5 +1,6 @@
 ﻿using Endgame.Game.Characters;
 using Endgame.Game.Menu;
+using Game.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,8 +32,6 @@ public class Game
 		{
 			foreach (var (index, b) in Battles.Select((b, index) => (index, b)))
 			{
-				await Statics.Console.WriteLine();
-
 				Player.Battle = b;
 				bool battleWon = await b.Run();
 
@@ -81,25 +80,56 @@ public class Game
 		await Statics.Console.Clear();
 	}
 
+	// TODO: Refactor the initialization and character died event attachment
 	private void InitializeBattles()
 	{
+		// TODO: Refactor this
 		PlayerType heroesPlayer = Mode != GameplayMode.ComputerVsComputer ? PlayerType.Human : PlayerType.Computer;
-		PlayerType monstersPlayer = Mode == GameplayMode.HumanVsHuman? PlayerType.Human : PlayerType.Computer;
+		PlayerType monstersPlayer = Mode == GameplayMode.HumanVsHuman ? PlayerType.Human : PlayerType.Computer;
 
 		Heroes = new Party(PartyType.Heroes, heroesPlayer);
 		Heroes.Characters.Add(Player);
+		AttachCharacterDiedEvents(Heroes);
 
-		Battle battle1 = new(Heroes, new Party(PartyType.Monsters, monstersPlayer));
-		battle1.Monsters.Characters.AddRange([new Skeleton(battle1)]);
-
-		Battle battle2 = new(Heroes, new Party(PartyType.Monsters, monstersPlayer));
-		battle2.Monsters.Characters.AddRange([new Skeleton(battle2), new Skeleton(battle2)]);
-
-		Battle battle3 = new(Heroes, new Party(PartyType.Monsters, monstersPlayer));
-		battle3.Monsters.Characters.AddRange([new TheUncodedOne(battle3)]);
+		var battle1 = InitializeBattle1(monstersPlayer);
+		var battle2 = InitializeBattle2(monstersPlayer);
+		var battle3 = InitializeBattle3(monstersPlayer);
 
 		Battles.AddRange([battle1, battle2, battle3]);
 	}
-}
 
-public enum GameplayMode { PlayerVsComputer, ComputerVsComputer, HumanVsHuman };
+	private Battle InitializeBattle1(PlayerType monstersPlayer)
+	{
+		Party monstersParty = new(PartyType.Monsters, monstersPlayer);
+		Battle battle1 = new(Heroes, monstersParty);
+		battle1.Monsters.Characters.AddRange([new Skeleton(battle1)]);
+		AttachCharacterDiedEvents(monstersParty);
+		return battle1;
+	}
+
+	private Battle InitializeBattle2(PlayerType monstersPlayer)
+	{
+		Party monstersParty = new(PartyType.Monsters, monstersPlayer);
+		Battle battle2 = new(Heroes, monstersParty);
+		battle2.Monsters.Characters.AddRange([new Skeleton(battle2), new Skeleton(battle2)]);
+		AttachCharacterDiedEvents(monstersParty);
+		return battle2;
+	}
+
+	private Battle InitializeBattle3(PlayerType monstersPlayer)
+	{
+		Party monstersParty = new(PartyType.Monsters, monstersPlayer);
+		Battle battle3 = new(Heroes, monstersParty);
+		battle3.Monsters.Characters.Add(new TheUncodedOne(battle3));
+		AttachCharacterDiedEvents(monstersParty);
+		return battle3;
+	}
+
+	private void AttachCharacterDiedEvents(Party party)
+	{
+		foreach (IPartyCharacter character in party.Characters)
+		{
+			character.CharacterDied += party.OnCharacterDied;
+		}
+	}
+}

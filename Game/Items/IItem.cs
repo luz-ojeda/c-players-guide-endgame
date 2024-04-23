@@ -4,6 +4,6 @@ namespace Endgame.Game.Items;
 
 public interface IItem
 {
-	public string Name { get; }
-	public Task Use(object context);
+	string Name { get; }
+	Task Use(object context);
 }

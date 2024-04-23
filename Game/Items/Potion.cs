@@ -2,7 +2,7 @@
 
 namespace Endgame.Game.Items;
 
-public abstract class Potion : IItem
+public abstract class Potion : Item, IPartyItem
 {
 	public virtual string Name { get; } = "Potion";
 

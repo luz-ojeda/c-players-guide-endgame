@@ -1,14 +1,10 @@
 ﻿using Endgame.Game.Actions;
 using Endgame.Game.Characters;
-using Endgame.Game.Items;
 using Endgame.Game.Menu;
-using Microsoft.Extensions.Options;
+using Game.Enums;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
 using System.Threading.Tasks;
-using static System.Collections.Specialized.BitVector32;
 
 namespace Endgame.Game;
 public class Battle
@@ -50,32 +46,9 @@ public class Battle
 		return HeroesWon;
 	}
 
-	public void RemoveCharacterFromParty(ICharacter character)
-	{
-		if (character.PartyType == PartyType.Monsters)
-		{
-			Monsters.Characters.Remove(character);
-		}
-		else
-		{
-			Heroes.Characters.Remove(character);
-		}
-	}
-	public void RemoveItemFromPartyItems(ICharacter character, IItem item)
-	{
-		if (character.PartyType == PartyType.Monsters)
-		{
-			Monsters.Items.Remove(item);
-		}
-		else
-		{
-			Heroes.Items.Remove(item);
-		}
-	}
-
 	private async Task PlayTurn(Party party)
 	{
-		foreach (ICharacter character in party.Characters)
+		foreach (IPartyCharacter character in party.Characters)
 		{
 			if (Monsters.Characters.Count == 0 || Heroes.Characters.Count == 0) return;
 
@@ -144,6 +117,7 @@ public class Battle
 
 		await Menu.Menu.DisplayMenuItems("Choose action: ", menuItems);
 		await Statics.Console.Write("What do you want to do? ");
+		await Statics.Console.WriteLine();
 		return actions[await Menu.Menu.GetUserOption(menuItems.Count)];
 	}
 

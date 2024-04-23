@@ -1,6 +1,7 @@
 ﻿using Endgame.Game.Attacks;
 using Endgame.Game.Characters;
 using Endgame.Game.Menu;
+using Game.Enums;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -9,16 +10,16 @@ namespace Endgame.Game.Actions;
 
 public class AttackAction : ITargetedAction
 {
-	public ICharacter? Target { get; set; }
+	public IPartyCharacter? Target { get; set; }
 
-	public AttackAction(ICharacter? target)
+	public AttackAction(IPartyCharacter? target)
 	{
 		Target = target;
 	}
 
 	public AttackAction() { }
 
-	public async Task Run(ICharacter character, Battle battle)
+	public async Task Run(IPartyCharacter character, Battle battle)
 	{
 		await SetUp(character, battle.GetEnemyPartyFor(character), battle.GetPartyFor(character));
 		if (Target == null) return;
@@ -34,7 +35,6 @@ public class AttackAction : ITargetedAction
 			Target.HP -= damage;
 		}
 
-		await Statics.Console.WriteLine();
 		await Statics.Console.Write($"{character.Name} used ");
 		await ConsoleHelper.Write($"{attack.Name}", attack.Color ?? ConsoleColor.White);
 		await Statics.Console.WriteLine($" on {Target.Name}.");
@@ -45,11 +45,11 @@ public class AttackAction : ITargetedAction
 		if (Target.HP == 0)
 		{
 			await Statics.Console.WriteLine($"{Target.Name} has been defeated!");
-			battle.RemoveCharacterFromParty(Target);
+			Target.Die();
 		}
 	}
 
-	public async Task SetUp(ICharacter character, Party enemyParty, Party party)
+	public async Task SetUp(IPartyCharacter character, Party enemyParty, Party party)
 	{
 		if (enemyParty.Characters.Count > 1)
 		{

@@ -1,17 +1,16 @@
 ﻿using Endgame.Game.Attacks;
+using Game.Enums;
 
 namespace Endgame.Game.Characters;
 
 public interface ICharacter
 {
-	public string Name { get; set; }
-	public PartyType PartyType { get; }
-	public float MaxHP {  get; }
-	public float HP {  get; set; }
-	public IAttack Attack { get; }
-	public string Symbol{ get; }
-	public bool CanUseItems { get; set; }
-	public string CurrentHP => $"({HP}/{MaxHP})";
+	string Name { get; set; }
+	PartyType PartyType { get; }
+	float MaxHP { get; }
+	float HP { get; set; }
+	IAttack Attack { get; }
+	string Symbol { get; }
+	bool CanUseItems { get; set; }
+	string CurrentHP => $"({HP}/{MaxHP})";
 }
-
-public enum CharacterType { Skeleton, TrueProgrammer };
