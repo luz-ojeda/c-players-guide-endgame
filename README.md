@@ -25,6 +25,6 @@ Game's logic resides inside the `./Game` folder.
 3. Run
 
     ```bash
-   cd c-players-guide-endgame
+   dotnet run
 
 Might take a bit to build for the first time.
