@@ -1,4 +1,6 @@
 ﻿using Endgame.Game.Characters;
+using Endgame.Game.Gear;
+using Endgame.Game.Interfaces;
 using Endgame.Game.Menu;
 using Game.Enums;
 using System;
@@ -101,15 +103,20 @@ public class Game
 	private Battle InitializeBattle1(PlayerType monstersPlayer)
 	{
 		Party monstersParty = new(PartyType.Monsters, monstersPlayer);
+
 		Battle battle1 = new(Heroes, monstersParty);
-		battle1.Monsters.Characters.AddRange([new Skeleton(battle1)]);
+		battle1.Monsters.Characters.AddRange([new Skeleton(battle1, new Dagger())]);
 		AttachCharacterDiedEvents(monstersParty);
 		return battle1;
 	}
 
 	private Battle InitializeBattle2(PlayerType monstersPlayer)
 	{
-		Party monstersParty = new(PartyType.Monsters, monstersPlayer);
+		Party monstersParty = new(
+			PartyType.Monsters,
+			monstersPlayer,
+			[new Dagger(), new Dagger()]);
+
 		Battle battle2 = new(Heroes, monstersParty);
 		battle2.Monsters.Characters.AddRange([new Skeleton(battle2), new Skeleton(battle2)]);
 		AttachCharacterDiedEvents(monstersParty);
@@ -119,6 +126,7 @@ public class Game
 	private Battle InitializeBattle3(PlayerType monstersPlayer)
 	{
 		Party monstersParty = new(PartyType.Monsters, monstersPlayer);
+
 		Battle battle3 = new(Heroes, monstersParty);
 		battle3.Monsters.Characters.Add(new TheUncodedOne(battle3));
 		AttachCharacterDiedEvents(monstersParty);

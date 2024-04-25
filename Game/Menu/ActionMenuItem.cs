@@ -1,4 +1,4 @@
-﻿using Endgame.Game.Actions;
+﻿using Endgame.Game.Interfaces;
 
 namespace Endgame.Game.Menu;
 

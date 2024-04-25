@@ -1,4 +1,5 @@
 ﻿using Endgame.Game.Characters;
+using Endgame.Game.Interfaces;
 using Endgame.Game.Items;
 using Endgame.Game.Menu;
 using Game.Enums;
@@ -7,14 +8,20 @@ using System.Threading.Tasks;
 
 namespace Endgame.Game.Actions;
 
-public class UseItemAction : ITargetedAction
+public class UseItemAction : ITargetedAction, IWeightedOption
 {
 	public IPartyCharacter? Target { get; set; }
 	public IPartyItem Item { get; set; }
+	public string Description { get; } = "Use item";
+	public double? Weight { get; set; }
 
-	public UseItemAction(IPartyCharacter? target)
+	public UseItemAction(IPartyCharacter? target, ICharacter character)
 	{
 		Target = target;
+		if (character.HP < (character.MaxHP * 0.25))
+		{
+			Weight = 0.5;
+		}
 	}
 
 	public async Task Run(IPartyCharacter character, Battle battle)

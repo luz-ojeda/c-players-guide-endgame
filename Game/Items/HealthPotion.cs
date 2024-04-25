@@ -1,4 +1,4 @@
-﻿using Endgame.Game.Characters;
+﻿using Endgame.Game.Interfaces;
 using System;
 using System.Threading.Tasks;
 
@@ -15,15 +15,11 @@ public class HealthPotion : Potion
 		{
 			await Statics.Console.Write($"{character.Name} used a ");
 			await ConsoleHelper.WriteLine($"health potion", ConsoleColor.Red);
-			if (character.HP + _healingAmount > character.MaxHP )
-			{
-				character.HP = character.MaxHP;
-			}
-			else
-			{
-				character.HP += _healingAmount;
-			}
-			await Statics.Console.WriteLine($"Healed {_healingAmount} HP points.");
+			var effectiveHealingAmount = character.HP + _healingAmount > character.MaxHP ? character.MaxHP - character.HP : _healingAmount;
+
+			character.HP += effectiveHealingAmount;
+
+			await Statics.Console.WriteLine($"Healed {effectiveHealingAmount} HP points.");
 		}
 	}
 }

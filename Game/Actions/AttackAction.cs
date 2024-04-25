@@ -1,9 +1,10 @@
-﻿using Endgame.Game.Attacks;
-using Endgame.Game.Characters;
+﻿using Endgame.Game.Characters;
+using Endgame.Game.Interfaces;
 using Endgame.Game.Menu;
 using Game.Enums;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Endgame.Game.Actions;
@@ -11,6 +12,9 @@ namespace Endgame.Game.Actions;
 public class AttackAction : ITargetedAction
 {
 	public IPartyCharacter? Target { get; set; }
+	public IAttack Attack { get; set; }
+	public string Description { get; } = "Attack";
+	public double? Weight { get; set; } = null;
 
 	public AttackAction(IPartyCharacter? target)
 	{
@@ -21,40 +25,80 @@ public class AttackAction : ITargetedAction
 
 	public async Task Run(IPartyCharacter character, Battle battle)
 	{
-		await SetUp(character, battle.GetEnemyPartyFor(character), battle.GetPartyFor(character));
+		Party party = battle.GetPartyFor(character);
+		PlayerType playerInControl = party.PlayerInControl;
+
+		await SetTarget(character, battle.GetEnemyPartyFor(character), playerInControl);
 		if (Target == null) return;
 
-		IAttack attack = character.Attack;
-		float damage = attack.Damage;
-		if (Target.HP - damage <= 0)
+		await SetAttack(character, playerInControl);
+
+		if (Target.HP - Attack.Damage <= 0)
 		{
 			Target.HP = 0;
+			Target.Die();
 		}
 		else
 		{
-			Target.HP -= damage;
+			Target.HP -= Attack.Damage;
 		}
 
-		await Statics.Console.Write($"{character.Name} used ");
-		await ConsoleHelper.Write($"{attack.Name}", attack.Color ?? ConsoleColor.White);
-		await Statics.Console.WriteLine($" on {Target.Name}.");
-
-		await Statics.Console.WriteLine($"{attack.Name} dealt {damage} damage.");
-		await Statics.Console.WriteLine($"{Target.Name} is now at {Target.HP}/{Target.MaxHP} HP.");
+		await DisplayAttackInformation(character);
 
 		if (Target.HP == 0)
 		{
 			await Statics.Console.WriteLine($"{Target.Name} has been defeated!");
-			Target.Die();
 		}
 	}
 
-	public async Task SetUp(IPartyCharacter character, Party enemyParty, Party party)
+	private async Task SetAttack(ICharacter character, PlayerType playerInControl)
+	{
+		// If user has nothing equipped return normal attack
+		if (character.GearEquipped == null) Attack = character.Attacks[0];
+
+		int attackIndex;
+		if (playerInControl == PlayerType.Human)
+		{
+			List<IMenuItem> possibleAttacksMenuItems = [];
+			foreach (IAttack a in character.Attacks)
+			{
+				possibleAttacksMenuItems.Add(new MenuItem(a.Name));
+			}
+
+			await Menu.Menu.DisplayMenuItems("Choose the attack: ", possibleAttacksMenuItems);
+			attackIndex = await Menu.Menu.GetUserOption(possibleAttacksMenuItems.Count);
+		}
+		else
+		{
+			// Computer should almost always prefer attacking with equipped weapon
+			List<double> attackOptionsWeights = ComputerPlayer.CalculateDynamicWeights(character.Attacks);
+			attackIndex = ComputerPlayer.GetWeightedRandomIndex(attackOptionsWeights);
+		}
+		Attack = character.Attacks[attackIndex];
+	}
+
+	private async Task DisplayAttackInformation(ICharacter character)
+	{
+		await Statics.Console.Write($"{character.Name} used ");
+		await DisplayAttackWithColor(Attack);
+		await Statics.Console.WriteLine($" on {Target.Name}.");
+
+		await DisplayAttackWithColor(Attack);
+		await Statics.Console.WriteLine($" dealt {Attack.Damage} damage.");
+		await Statics.Console.WriteLine($"{Target.Name} is now at {Target.HP}/{Target.MaxHP} HP.");
+	}
+
+	private async Task DisplayAttackWithColor(IAttack attack)
+	{
+		await ConsoleHelper.Write($"{Attack.Name}", Attack.Color ?? ConsoleColor.White);
+	}
+
+	private async Task SetTarget(IPartyCharacter character, Party enemyParty, PlayerType playerInControl)
 	{
 		if (enemyParty.Characters.Count > 1)
 		{
 			int targetIndex;
-			if (party.PlayerInControl == PlayerType.Human)
+			if (playerInControl == PlayerType.Human)
 			{
 				List<IMenuItem> possibleTargets = [];
 				foreach (ICharacter enemyCharacter in enemyParty.Characters)

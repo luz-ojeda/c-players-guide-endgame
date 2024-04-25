@@ -5,8 +5,8 @@ namespace Endgame.Game.Attacks;
 public record UnravelingAttack(
 	string Name = "UNRAVELING ATTACK",
 	ConsoleColor? Color = ConsoleColor.Red
-	) : IAttack
+	) : Attack, ICharacterAttack
 {
-	public float Damage { get; } = new Random().Next(1, 3);
+	public float Damage => new Random().Next(1, 3);
 }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using Endgame.Game.Interfaces;
 
 namespace Endgame.Game.Characters;
 

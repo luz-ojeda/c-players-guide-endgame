@@ -1,9 +1,11 @@
 ﻿using Endgame.Game.Actions;
 using Endgame.Game.Characters;
+using Endgame.Game.Interfaces;
 using Endgame.Game.Menu;
 using Game.Enums;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Endgame.Game;
@@ -56,18 +58,26 @@ public class Battle
 			await Statics.Console.WriteLine();
 			await Statics.Console.WriteLine($"It's {character.Name} turn...");
 			await Statics.Console.WriteLine();
+			if (party.PlayerInControl == PlayerType.Computer)
+			{
+				await Task.Delay(1500);
+			}
 
 			IAction action;
 			if (party.PlayerInControl == PlayerType.Human)
 			{
-				action = await PlayHumanTurn(character, party);
+				action = await HumanChooseAction(character, party);
 			}
 			else
 			{
-				action = PlayComputerTurn(character, party);
+				action = ComputerChooseAction(character, party);
 			}
 
 			await action.Run(character, this);
+			if (party.PlayerInControl == PlayerType.Computer)
+			{
+				await Task.Delay(new Random().Next(2) * 1000);
+			}
 		}
 	}
 
@@ -100,19 +110,14 @@ public class Battle
 		await Statics.Console.WriteLine("=================================================================================================");
 	}
 
-	private async Task<IAction> PlayHumanTurn(ICharacter character, Party party)
+	private async Task<IAction> HumanChooseAction(ICharacter character, Party party)
 	{
 		List<IAction> actions = GetPossibleActions(character, party);
 
 		List<IMenuItem> menuItems = [];
 		foreach (IAction action in actions)
 		{
-			menuItems.Add(action switch
-			{
-				DoNothingAction => new ActionMenuItem("Do Nothing", true, action),
-				AttackAction => new ActionMenuItem("Standard Attack", true, action),
-				UseItemAction => new ActionMenuItem("Use Item", character.CanUseItems, action),
-			});
+			menuItems.Add(new ActionMenuItem(action.Description, character.CanUseItems, action));
 		}
 
 		await Menu.Menu.DisplayMenuItems("Choose action: ", menuItems);
@@ -121,11 +126,13 @@ public class Battle
 		return actions[await Menu.Menu.GetUserOption(menuItems.Count)];
 	}
 
-	private IAction PlayComputerTurn(ICharacter character, Party party)
+	private IAction ComputerChooseAction(ICharacter character, Party party)
 	{
 		List<IAction> actions = GetPossibleActions(character, party);
 
-		return actions[new Random().Next(0, actions.Count)];
+		List<double> weights = ComputerPlayer.CalculateDynamicWeights(actions);
+		int actionIndex = ComputerPlayer.GetWeightedRandomIndex(weights);
+		return actions[actionIndex];
 	}
 
 	private List<IAction> GetPossibleActions(
@@ -136,12 +143,17 @@ public class Battle
 			new DoNothingAction(),
 			new AttackAction(GetEnemyPartyFor(character).Characters[0])];
 
-		if (party.Items.Count == 0) return actions;
 
-		if (party.PlayerInControl == PlayerType.Human ||
-			(character.HP < (character.MaxHP * 0.25) && party.PlayerInControl == PlayerType.Computer))
+		if (party.Items.Count > 0 &&
+			(party.PlayerInControl == PlayerType.Human ||
+			(party.PlayerInControl == PlayerType.Computer && character.HP < (character.MaxHP * 0.25))))
 		{
-			actions.Add(new UseItemAction(GetPartyFor(character).Characters[0]));
+			actions.Add(new UseItemAction(GetPartyFor(character).Characters[0], character));
+		}
+
+		if (party.Gear.Count > 0 && character is IPartyCharacter partyCharacter)
+		{
+			actions.Add(new EquipAction(partyCharacter));
 		}
 
 		return actions;

@@ -6,4 +6,4 @@ public record PunchAttack(
 	float Damage = 1,
 	string Name = "PUNCH",
 	ConsoleColor? Color = ConsoleColor.DarkYellow
-	): IAttack;
+	): Attack, ICharacterAttack;
