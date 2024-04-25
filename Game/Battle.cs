@@ -95,7 +95,8 @@ public class Battle
 		foreach (ICharacter c in Heroes.Characters)
 		{
 			ConsoleColor color = currentCharacter == c ? ConsoleColor.Yellow : ConsoleColor.White;
-			await ConsoleHelper.WriteLine($"{c.CurrentHP} {c.Name} {c.Symbol}", color);
+			string gearEquipped = c.GearEquipped != null ? $"| Equipped : { c.GearEquipped.Name}" : "";
+			await ConsoleHelper.WriteLine($"{c.CurrentHP} {c.Name} {c.Symbol} {gearEquipped}", color);
 		}
 
 		await Statics.Console.WriteLine("----------------------------------------------- VS ----------------------------------------------");
@@ -103,7 +104,9 @@ public class Battle
 		foreach (ICharacter c in Monsters.Characters)
 		{
 			ConsoleColor color = currentCharacter == c ? ConsoleColor.Yellow : ConsoleColor.White;
-			string characterInfo = $"{c.Symbol} {c.Name} {c.CurrentHP}";
+			string gearEquipped = c.GearEquipped != null ? $"Equipped : {c.GearEquipped.Name} |" : "";
+			string characterInfo = $"{gearEquipped} {c.Symbol} {c.Name} {c.CurrentHP}";
+
 			await ConsoleHelper.WriteLine($"{characterInfo,characterCount}", color);
 		}
 
